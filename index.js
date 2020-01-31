@@ -25,14 +25,13 @@ var auth = function (req, res, next) {
   else {
     return res.status(401).json({ message: "please login" });
   }
-}
+}  
 
 app.use(bodyParser.json());
 
 app.post("/", function (req, res) {
 
 })
-
 
 app.post("/register", function (req, res) {
   user.checkUser(req.body.email).then(data => {
@@ -42,7 +41,7 @@ app.post("/register", function (req, res) {
       let newUser = req.body;
       newUser.referalId = req.body.fname + "hello";
       newUser.signupCredit = 100;
-      newUser.refCredit = 250;
+      newUser.refCredit = 280;
       newUser.cashback = 0;
       newUser.referalComm = 0;
       newUser.refunds = 0;
