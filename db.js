@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost:27017/wallet", { useNewUrlParser: true, useUnifiedTopology: true });
 
-
+const Product = mongoose.model("product", {
+  name: String, price: Number, description: String
+});
 const User = mongoose.model("user", {
   fname: {
     type: String,
@@ -11,39 +13,43 @@ const User = mongoose.model("user", {
     type: String,
     required: true
   },
-  email:{
+  email: {
     type: String,
     required: true
   },
-  password:{
+  password: {
     type: String,
     required: true
   },
-  referalId:{
+  referalCode: {
     type: String,
     required: true
   },
-  signupCredit:{
+  referedBy: {
+    type: String,
+  },
+  signupCredit: {
     type: Number,
     required: true
   },
-  refCredit:{
+  referalCredit: {
     type: Number,
     required: true
   },
-  cashback:{
+  cashback: {
     type: Number,
   },
-  refunds:{
+  refunds: {
     type: Number,
   },
-  referalComm:{
-    type: Number,
+  referalComm: {
+    type: Number
   },
-  SalesComm:{
+  SalesComm: {
     type: Number,
   },
 
 })
 
 exports.User = User;
+exports.Product = Product;
