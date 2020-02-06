@@ -36,6 +36,38 @@ app.post("/", auth, function (req, res) {
   })
 })
 
+app.put("/edit", function (req, res) {
+  signupCredit = req.session.user.signupCredit - req.body.signupCredit;
+  referalCredit = req.session.user.referalCredit - req.body.referalCredit;
+  cashback = req.session.user.cashback - req.body.cashback;
+  refunds = req.session.user.refunds - req.body.refunds;
+  referalComm = req.session.user.referalComm - req.body.referalComm;
+  SalesComm = req.session.user.SalesComm - req.body.SalesComm;
+  console.log(signupCredit);
+  console.log(req.session.user.signupCredit);
+  console.log(req.body.signupCredit);
+
+    user.editUserBal(
+      req.session.user._id,
+      signupCredit,
+      referalCredit,
+      cashback,
+      refunds,
+      referalComm,
+      SalesComm,
+    ).then(data => {
+      res.json(data);
+    })
+  user.addSalesComm(req.session.user.referedBy).then(data => {
+    console.log("add sales promise");
+    if (data) {
+      user.updateSalesComm(data._id, req.body.price).then(data => {
+        console.log("update sales promise");
+        res.json(data);
+      })
+    }
+  })
+})
 app.post("/register", function (req, res) {
   user.checkUser(req.body.email).then(data => {
     if (data) {
@@ -81,7 +113,7 @@ app.post("/login", function (req, res) {
   })
 });
 
-app.post("/checkout",auth, function (req, res) {
+app.post("/checkout", auth, function (req, res) {
   finalPrice = req.body.price;
   signUpDiscount = 0;
   referalDiscount = 0;
@@ -102,21 +134,12 @@ app.post("/checkout",auth, function (req, res) {
 
   //calculate referalDiscount
   if (req.body.referal == true) {
-    // referalDiscount = req.session.user.referalCredit;
-    // else if (referalDiscount >= finalPrice) {
-    //   referalDiscount = referalDiscount - finalPrice;
-    //   finalPrice = 0;
-    // } else {
-    //   finalPrice = finalPrice - referalDiscount;
-    //   referalDiscount = req.session.user.referalCredit - finalPrice;
-    // }
-    if (finalPrice >= req.session.user.referalCredit && req.session.user.referalCredit != 0) {
+    if (finalPrice >= req.session.user.referalCredit) {
       referalDiscount = req.session.user.referalCredit;
-      finalPrice = finalPrice - referalDiscount;
     } else {
-      referalDiscount = req.session.user.referalCredit - finalPrice;
-      finalPrice = 0;
+      referalDiscount = finalPrice;
     }
+    finalPrice = finalPrice - referalDiscount;
   }
 
   //deduct from main balance
@@ -134,41 +157,38 @@ app.post("/checkout",auth, function (req, res) {
       });
     } else {
       //cashback discount
-      if (finalPrice >= req.session.user.cashback && req.session.user.cashback != 0) {
+      if (finalPrice >= req.session.user.cashback) {
         cashbackDiscount = req.session.user.cashback;
-        finalPrice = finalPrice - cashbackDiscount;
       } else {
-        cashbackDiscount = req.session.user.cashback - finalPrice;
-        finalPrice = 0;
+        cashbackDiscount = finalPrice;
       }
-
+      finalPrice = finalPrice - cashbackDiscount;
       //refunds discount
-      if (finalPrice >= req.session.user.refunds && req.session.user.refunds != 0) {
+      if (finalPrice >= req.session.user.refunds) {
         refundsDiscount = req.session.user.refunds;
-        finalPrice = finalPrice - refundsDiscount;
       } else {
-        refundsDiscount = req.session.user.refunds - finalPrice;
-        finalPrice = 0;
+        refundsDiscount = finalPrice;
       }
+      finalPrice = finalPrice - refundsDiscount;
 
       //referalComm discount
-      if (finalPrice >= req.session.user.referalComm && req.session.user.referalComm != 0) {
+      if (finalPrice >= req.session.user.referalComm) {
         referalCommDiscount = req.session.user.referalComm;
-        finalPrice = finalPrice - referalCommDiscount;
       } else {
-        referalCommDiscount = req.session.user.referalComm - finalPrice;
-        finalPrice = 0;
+        referalCommDiscount = finalPrice;
       }
+      finalPrice = finalPrice - referalCommDiscount;
 
       //SalesComm discount
-      if (finalPrice >= req.session.user.SalesComm && req.session.user.SalesComm != 0) {
+      if (finalPrice >= req.session.user.SalesComm) {
         SalesCommDiscount = req.session.user.SalesComm;
-        finalPrice = finalPrice - SalesCommDiscount;
       } else {
-        SalesCommDiscount = req.session.user.SalesComm - finalPrice;
-        finalPrice = 0;
+        SalesCommDiscount = finalPrice;
       }
+      finalPrice = finalPrice - SalesCommDiscount;
+
       console.log("check2");
+      console.log(cashbackDiscount, refundsDiscount, referalCommDiscount, SalesCommDiscount)
       return res.json({
         finalPrice,
         signUpDiscount,
