@@ -92,6 +92,7 @@ app.post("/register", function (req, res) {
         newUser.cashback = 0;
         newUser.refunds = 0;
         newUser.SalesComm = 0;
+        newUser.referalComm = 0;
         user.addUser(newUser).then(data => {
           req.session.user = data;
           return res.json({ message: "helo registered usr", user: data });
